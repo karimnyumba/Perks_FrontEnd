@@ -8,6 +8,18 @@ import styles from '../screenstyles/signupStyles';
 import axios from "axios";
 import {BaseUrl} from "../api/BaseUrl";
 
+import * as yup from 'yup'
+import {yupResolver} from '@hookform/resolvers/yup'
+import { useForm, Controller } from 'react-hook-form';
+
+const signupSchema = yup.object({
+  email: yup.string().email('Invalid email').required('Email is required'),
+  password: yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
+  firstName: yup.string().required('First name is required'),
+  lastName: yup.string().required('Last name is required'),
+  phoneNumber: yup.string().matches(/^\d{12}$/, 'Invalid phone number').required('Phone number is required'),
+});
+
 export default function SignUp() {
   const navigation = useNavigation();
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -17,6 +29,10 @@ export default function SignUp() {
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { control, handleSubmit, formState: { errors } } = useForm({
+    resolver: yupResolver(signupSchema),
+    mode: 'onChange'
+  });
 
   const handleSignup = async () => {
     try {
@@ -75,41 +91,77 @@ export default function SignUp() {
         <Text style={styles.signUpText}>Sign Up</Text>
 
         <View style={styles.nameStyles}>
-          <TextInput
-            placeholder="First name"
-            value={firstName}
-            onChangeText={setFirstName}
-            style={[styles.halfInput]}
+          <Controller
+            control={control}
+            name='firstName'
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                placeholder="First name"
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                style={[styles.halfInput]}
+              />
+            )}
           />
-          <TextInput
-            placeholder="Last name"
-            value={lastName}
-            onChangeText={setLastName}
-            style={[styles.halfInput]}
-          />
+          <Controller
+            control={control}
+            name='lastName'
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+              placeholder="Last name"
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              style={[styles.halfInput]}
+              />
+              )}
+              />
         </View>
-        <TextInput
-          placeholder="Phone number: 255*********"
-          keyboardType="phone-pad"
-          value={phoneNumber}
-          onChangeText={setPhoneNumber}
-          style={styles.input}
+              {errors.firstName && (<Text>*{errors.firstName.message}*</Text>)}
+        <Controller
+          control={control}
+          name='phoneNumber'
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              placeholder="Phone number: 255*********"
+              keyboardType="phone-pad"
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              style={styles.input}
+            />
+          )}
         />
-        <TextInput
-          placeholder="Email: JohnDoe@gmail.com"
-          keyboardType="email-address"
-          value={email}
-          onChangeText={setEmail}
-          style={[styles.input]}
+        <Controller
+          control={control}
+          name='email'
+          render={({ field: { onChange, onBlur, value } }) => (
+            <TextInput
+              placeholder="Email: JohnDoe@gmail.com"
+              keyboardType="email-address"
+              onBlur={onBlur}
+              onChangeText={onChange}
+              value={value}
+              style={[styles.input]}
+            />
+          )}
         />
 
         <View style={styles.passwordInputContainer}>
-          <TextInput
-            placeholder="Password (minimum 6 characters)"
-            secureTextEntry={!passwordVisible}
-            value={password}
-            onChangeText={setPassword}
-            style={[styles.input]}
+          <Controller
+            control={control}
+            name='password'
+            render={({ field: { onChange, onBlur, value } }) => (
+              <TextInput
+                placeholder="Password (minimum 6 characters)"
+                secureTextEntry={!passwordVisible}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                style={[styles.input]}
+              />
+            )}
           />
           <TouchableOpacity
             style={styles.passwordVisibilityIcon}

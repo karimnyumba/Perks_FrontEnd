@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, ImageBackground, Image, TouchableOpacity, Modal, ActivityIndicator, BackHandler, } from "react-native";
+import { View, Text, TextInput, ImageBackground, Image, TouchableOpacity, Modal, ActivityIndicator, RefreshControl, ScrollView, BackHandler, } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -13,21 +13,16 @@ export default function Home() {
   const navigation = useNavigation();
   const [isModalVisible, setModalVisible] = useState(false);
   const [recommendationText, setRecommendationText] = useState("");
-  const [locationText, setLocationText] = useState("Your location");
-  const [userLocation, setUserLocation] = useState(null);
-  const [userRestaurantData, setUserRestaurantData] = useState([]);
+  const [userLocation, setUserLocation] = useState(null);  const [userRestaurantData, setUserRestaurantData] = useState([]);
   const [visitedRestaurants, setVisitedRestaurants] = useState([]);
   const [unVisitedRestaurants, setUnVisitedRestaurants] = useState();
   const [loadingData, setLoadingData] = useState(false);
   const { currentUser, userPointsUpdated } = usePerksContext();
 
-  console.log(currentUser);
-
   const closeModal = () => {
     setModalVisible(false);
     // Reset recommendationText and locationText when the modal is closed
     setRecommendationText("");
-    setLocationText("Your location");
   };
 
   function shuffleArray(array) {
@@ -56,58 +51,51 @@ export default function Home() {
     return () => backHandler.remove();
   }, [navigation]);
 
-  useEffect(() => {
-    async function loadRestaurants() {
-      setLoadingData(true);
-      try {
-        const response = await axios.get(
-          `${BaseUrl}/api/user-restraurant?userId=${currentUser?.id}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        const data = response.data;
-        const sortedRestaurants = data.sort(
-          (a, b) => b.total_points - a.total_points
-        );
-        const topRestaurants = sortedRestaurants.slice(0, 3);
-        setVisitedRestaurants(topRestaurants);
+  const loadRestaurants = async () => {
+    setLoadingData(true);
+    try {
+      const response = await axios.get(
+        `${BaseUrl}/api/user-restraurant?userId=${currentUser?.id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = response.data;
+      const sortedRestaurants = data.sort(
+        (a, b) => b.total_points - a.total_points
+      );
+      const topRestaurants = sortedRestaurants.slice(0, 3);
+      setVisitedRestaurants(topRestaurants);
 
-        const shuffledUnvisited = shuffleArray(data);
-        const topUnvisitedRestaurants = shuffledUnvisited.slice(0, 3);
+      const shuffledUnvisited = shuffleArray(data);
+      const topUnvisitedRestaurants = shuffledUnvisited.slice(0, 3);
 
-        setUnVisitedRestaurants(topUnvisitedRestaurants);
-        setUserRestaurantData(data);
-        setLoadingData(false);
-      } catch (e) {
-        alert(`Error ${e.message}`);
-        setLoadingData(false);
-      }
+      setUnVisitedRestaurants(topUnvisitedRestaurants);
+      setUserRestaurantData(data);
+      setLoadingData(false);
+    } catch (e) {
+      alert(`Error ${e.message}`);
+      setLoadingData(false);
     }
+  };
 
+  useEffect(() => {
     loadRestaurants();
   }, [currentUser, userPointsUpdated]);
+
   const toggleModal = () => {
     setModalVisible(!isModalVisible);
-    // Reset locationText when the modal is closed
-    if (!isModalVisible) {
-      setLocationText("");
-    }
   };
 
   const submitRecommendation = async () => {
     setModalVisible(!isModalVisible);
-    // Reset locationText when the modal is closed
-    if (!isModalVisible) {
-      setLocationText("");
-    }
     try {
       const response = await axios.post(
         `${BaseUrl}/api/send_recommendation`,
         {
-          recommendationText: recommendationText + userLocation,
+          recommendationText: recommendationText + ' ~ ' + userLocation,
         },
         {
           headers: {
@@ -116,7 +104,6 @@ export default function Home() {
         }
       );
 
-      console.log(response.data);
     } catch (e) {}
     // Handle the submission of recommendationText here
     // You can send it to a backend or perform other actions
@@ -139,31 +126,42 @@ export default function Home() {
   useEffect(() => {
     determineGreeting();
   }, []);
+
   const [greeting, setGreeting] = useState("");
 
   const requestLocationPermission = async () => {
-    try {
+    try { 
+      setLoadingData(true); // Set loading indicator
+
       let { status } = await Location.requestForegroundPermissionsAsync(); // Request location permission
       if (status === "granted") {
         let location = await Location.getCurrentPositionAsync({});
-        setUserLocation(location);
-
-        // to show the coordinates:
-        // setLocationText(`I recommend a restaurant near: ${location.coords.latitude}, ${location.coords.longitude}`);
-
-        setLocationText(
-          `We have received the restaurant's location information and will proceed to work on it. Thank you.`
-        );
+        setRecommendationText("");
+        toggleModal();
+        setUserLocation(`Latitude: ${location.coords.latitude}, Longitude: ${location.coords.longitude}`);
       } else {
         console.log("Location permission denied");
       }
     } catch (error) {
       console.error("Error requesting location permission:", error);
+    } finally {
+      setLoadingData(false);
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.scrollViewContent}
+      refreshControl={
+        <RefreshControl
+          refreshing={loadingData}
+          onRefresh={() => {
+            loadRestaurants();
+          }}
+        />
+      }
+    >
       <View style={styles.topCard}>
         <ImageBackground
           style={styles.topCardBackground}
@@ -176,7 +174,7 @@ export default function Home() {
           </View>
 
           {loadingData ? (
-            <View style={styles.loadingContainer}>
+            <View style={styles.loadingContainer1}>
               <ActivityIndicator size="large" color="gold" />
             </View>
           ) : (
@@ -189,7 +187,7 @@ export default function Home() {
       </View>
 
       {loadingData ? (
-        <View style={styles.loadingContainer}>
+        <View style={styles.loadingContainer2}>
           <ActivityIndicator size="large" color="blue" />
         </View>
       ) : (
@@ -307,43 +305,7 @@ export default function Home() {
       <TouchableOpacity style={styles.recommendButton} onPress={toggleModal}>
         <Text style={styles.recommendText}>Add Recommendation</Text>
       </TouchableOpacity>
-
-      <Modal animationType="slide" transparent={true} visible={isModalVisible}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Enter restaurant name</Text>
-            <TextInput
-              style={styles.modalTextInput}
-              multiline
-              placeholder="Enter your recommendation..."
-              value={recommendationText}
-              onChangeText={setRecommendationText}
-            />
-            <Text style={styles.modalTitle}>OR</Text>
-            <View style={styles.locationContainer}>
-              <TouchableOpacity
-                style={styles.locationButton}
-                onPress={requestLocationPermission}
-              >
-                <Icon name={"map-marker"} color={"white"} size={20} />
-                <Text style={styles.recommendHereText}>Recommend Here</Text>
-              </TouchableOpacity>
-              <Text style={styles.coordinates}>{locationText}</Text>
-            </View>
-            <View style={styles.modalbuttonview}>
-              <TouchableOpacity style={styles.modalButton} onPress={closeModal}>
-                <Text style={styles.modalButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.modalButton}
-                onPress={submitRecommendation}
-              >
-                <Text style={styles.modalButtonText}>Done</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      </ScrollView>
     </SafeAreaView>
   );
 }

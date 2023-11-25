@@ -5,7 +5,10 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         justifyContent: 'flex-start',
-        alignItems: 'center',
+    },
+    scrollViewContent: {
+      alignItems: "center",
+      flexGrow: 1,
     },
     scrollcontainer: {
         width: '90%',

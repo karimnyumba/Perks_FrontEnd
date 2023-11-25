@@ -5,6 +5,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+  scrollViewContent: {
+    flexGrow: 1,
+  },
   topPart: {
     height: '25%',
     width: '100%',

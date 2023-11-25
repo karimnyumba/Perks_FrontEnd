@@ -10,22 +10,32 @@ import axios from "axios";
 import {BaseUrl} from "../api/BaseUrl";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import * as yup from 'yup'
+import {yupResolver} from '@hookform/resolvers/yup'
+import { useForm, Controller } from 'react-hook-form';
+
+const loginSchema = yup.object({
+    phone_number: yup.string().required('Enter your phone number').matches(/^\d{12}$/, 'Invalid phone number'),
+    password: yup.string('It should be a string').required('Enter your password'),
+})
 
 export default function Login(){
     const navigation = useNavigation();
     const [passwordVisible, setPasswordVisible] = useState(false);
-    const [phone_number, setphone_number] = useState('');
-    const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const {setCurrentUser} = usePerksContext()
+    const {setCurrentUser} = usePerksContext();
 
+    const {control, handleSubmit, formState:{errors}} = useForm({
+        resolver:yupResolver(loginSchema),
+        // mode:'onChange' 
+    })
 
-    const handleLogin = async () => {
+    const handleLogin = async ({phone_number, password}) => {
         setIsLoading(true);
         try {
 
             const response = await axios.post(`${BaseUrl}/api/auth/login`, {
-                    phone_number: phone_number,
+                phone_number: phone_number,
                 password: password,
             },
             {
@@ -34,8 +44,6 @@ export default function Login(){
                 }
 
             });
-
-            console.log(response.data)
 
             if (response.data?.token) {
                 await AsyncStorage.setItem('authToken', response.data.token);
@@ -83,22 +91,55 @@ export default function Login(){
                 <Text>Earn your money back with us</Text>
 
                 <Text style={styles.loginText}>Login</Text>
+                <Controller
+                control={control}
+              
+                name='phone_number'
+            
+                render = {
+                    ({ field: { onChange, onBlur, value } })=>{
+                        
+                        return(
 
-                <TextInput
-                    placeholder="Phone Number: 255*********"
-                    keyboardType="phone-pad"
-                    value={phone_number}
-                    onChangeText={setphone_number}
-                    style={styles.input} />
+
+                        <TextInput
+                        placeholder="Phone Number: 255*********"
+                        keyboardType="phone-pad"
+                        onBlur={onBlur}
+                        onChangeText={onChange}
+                        value={value}
+
+                        style={styles.input} />
+                            )}
+                }
+                />
+                {errors.phone_number && <Text>{errors.phone_number.message}</Text>}
+               
 
                 <View style={styles.passwordInputContainer}>
-                    <TextInput
-                        placeholder="Password"
-                        secureTextEntry={!passwordVisible}
-                        value={password}
-                        onChangeText={setPassword}
-                        style={styles.input}
+                    <Controller
+                    name='password'
+                    control={control}
+                   
+                    render ={
+                    ({ field: { onChange, onBlur, value } })=>{
+
+                        
+                        return(
+                            <TextInput
+                            placeholder="Password"
+                            secureTextEntry={!passwordVisible}
+                            onBlur={onBlur}
+                            onChangeText={onChange}
+                            value={value}
+                            style={styles.input}
+                        />
+                        )}
+                    }
                     />
+                    
+
+    
                     <TouchableOpacity
                         style={styles.passwordVisibilityIcon}
                         onPress={() => setPasswordVisible(!passwordVisible)}
@@ -111,6 +152,7 @@ export default function Login(){
                         />
                     </TouchableOpacity>
                 </View>
+                    {errors.password && (<Text>*{errors.password.message}*</Text>)}
 
                 {isLoading ? (
                     <ActivityIndicator size = "large" color = "#0000ff" />
@@ -118,7 +160,7 @@ export default function Login(){
 
                 <TouchableOpacity
                     style={styles.customButton}
-                    onPress={handleLogin}
+                    onPress={handleSubmit(handleLogin)}
                 >
                     <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>

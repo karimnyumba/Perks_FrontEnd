@@ -1,11 +1,13 @@
 import { StyleSheet } from "react-native";
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    alignItems: "center",
     justifyContent: "flex-start",
+  },
+  scrollViewContent: {
+    alignItems: "center",
+    flexGrow: 1,
   },
   restaurantPage: {
     width: '100%',
@@ -167,7 +169,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     textAlign: "center",
   },
-
   recommendButton: {
     flexDirection: "row",
     justifyContent: "space-evenly",
@@ -204,13 +205,14 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   modalTextInput: {
-    height: 60,
     width: "90%",
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 5,
-    marginVertical: 15,
+    borderRadius: 25,
+    marginBottom: 30,
+    marginTop: 25,
     padding: 15,
+    paddingStart: 25,
   },
   modalbuttonview: {
     flexDirection: 'row',
@@ -219,7 +221,7 @@ const styles = StyleSheet.create({
   },
   modalButton: {
     backgroundColor: "#02113F",
-    width: "45%",
+    width: "40%",
     padding: 10,
     borderRadius: 30,
     alignItems: "center",
@@ -242,6 +244,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-evenly",
     borderRadius: 30,
     paddingHorizontal: 10,
+    marginBottom: 25,
+    marginTop: 15,
   },
   recommendHereText: {
     color: "white",
@@ -259,9 +263,11 @@ const styles = StyleSheet.create({
     marginHorizontal: "1%",
     padding: 5,
   },
-  loadingContainer: {
-    marginVertical: '56%',
+  loadingContainer1: {
+    marginVertical: '25%',
+  },
+  loadingContainer2: {
+    marginVertical: '54%',
   },
 });
-
 export default styles;

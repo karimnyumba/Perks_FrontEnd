@@ -1,5 +1,28 @@
 import { StyleSheet } from 'react-native';
 
+const pickerSelectStyles = {
+  inputIOS: {
+      fontSize: 16,
+      paddingVertical: 12,
+      paddingHorizontal: 10,
+      borderWidth: 1,
+      borderColor: 'gray',
+      borderRadius: 4,
+      color: 'black',
+      paddingRight: 30,
+  },
+  inputAndroid: {
+      fontSize: 16,
+      paddingHorizontal: 10,
+      paddingVertical: 8,
+      borderWidth: 0.5,
+      borderColor: 'gray',
+      borderRadius: 8,
+      color: 'black',
+      paddingRight: 30,
+  },
+};
+
 const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
@@ -49,7 +72,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   input: {
-    height: 40,
     borderColor: 'gray',
     marginBottom: 15,
     borderWidth: 1,
@@ -57,9 +79,9 @@ const styles = StyleSheet.create({
     height: 50,
     paddingStart: 15,
     borderRadius: 15,
+    marginTop: 10,
   },
   input2: {
-    height: 40,
     borderColor: 'gray',
     marginBottom: 15,
     borderWidth: 1,
@@ -67,6 +89,16 @@ const styles = StyleSheet.create({
     height: 50,
     paddingStart: 15,
     borderRadius: 15,
+  },
+  input3: {
+    borderColor: 'gray',
+    marginBottom: 15,
+    borderWidth: 1,
+    width: '100%',
+    height: 50,
+    borderRadius: 15,
+    justifyContent: 'center',
+    alignContent: 'center',
   },
   saveButton: {
     backgroundColor: 'lightblue',
@@ -80,6 +112,18 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  pickerSelectStyles: {
+    fontSize: 16,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    // borderWidth: 1,
+    borderWidth: 6,
+    borderColor: 'purple',
+    borderRadius: 8,
+    color: 'black',
+    paddingRight: 30,
+    // backgroundColor: 'red',
   },
 });
 

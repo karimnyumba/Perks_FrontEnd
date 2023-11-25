@@ -54,7 +54,6 @@ const RedeemedRewards = () => {
                 }
             );
             setRedeemedRewards(user_redeemed_rewards.data)
-            console.log(user_redeemed_rewards.data)
         }catch (e) {
 
         }

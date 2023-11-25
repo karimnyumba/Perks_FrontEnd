@@ -87,7 +87,6 @@ const SVRewards = (props) => {
 
   const handleRedeemPress = async (item) => {
     setLoadingRedeem(true);
-    console.log(item)
     try {
       const awardsData = await axios.get(
           `${BaseUrl}/api/generate_rewards?querytype=award&award=${item?.id}`,
@@ -116,7 +115,6 @@ const SVRewards = (props) => {
 
           if (response?.data.success){
             const found_item = itemsToRedeem.find((item) => item.id === item.id);
-            console.log(found_item)
             if (found_item.count > 1){
               const index = itemsToRedeem.indexOf(found_item);
               itemsToRedeem[index].count -= 1;

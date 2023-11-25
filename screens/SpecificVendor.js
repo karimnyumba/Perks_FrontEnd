@@ -1,17 +1,16 @@
 import React, {useEffect, useState} from 'react';
-import { View, Text, ImageBackground, Image, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, ImageBackground, Image, TouchableOpacity, Alert, ActivityIndicator, ScrollView, RefreshControl } from 'react-native';
 import { logoSvgCode } from './Welcome';
 import { SvgXml } from 'react-native-svg';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import styles from '../screenstyles/specificVendorStyles';
-import { ScrollView } from 'react-native-gesture-handler';
 import {usePerksContext} from "../context";
 import axios from "axios";
 import {BaseUrl} from "../api/BaseUrl";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const Vendor = (props) => {
+const SpecificVendor = (props) => {
     const navigation = useNavigation();
     const {currentUser, setUserPointsUpdated, userPointsUpdated, setCurrentRedeemedRewardId} = usePerksContext();
     const [userResturantData, setUserResturantData] = useState();
@@ -20,37 +19,37 @@ const Vendor = (props) => {
     const {restraurant, restId} = props.route.params;
 
 
-    async function userRstDataLoad (){
+    const userRstDataLoad = async () => {
         try {
-         setLoadingData(true)
-         const response = await axios.get(
-                 `${BaseUrl}/api/user-restraurant?userId=${currentUser.id}`,
-             {
-                 headers: {
-                     'Content-Type': 'application/json',
-                 },
-             }
-         );
+            setLoadingData(true)
+            const response = await axios.get(
+                    `${BaseUrl}/api/user-restraurant?userId=${currentUser.id}`,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
 
-         const awardsData = await axios.get(
-             `${BaseUrl}/api/award?restraurantId=${restId}`,
-             {
-                 headers: {
-                     'Content-Type': 'application/json',
-                 },
-             }
-         );
-         setRestaurantAwards(awardsData.data)
-         const restaurants = response.data
+            const awardsData = await axios.get(
+                `${BaseUrl}/api/award?restraurantId=${restId}`,
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                }
+            );
+            setRestaurantAwards(awardsData.data)
+            const restaurants = response.data
 
-         const data = restaurants.find((rst) => rst.restraurant.id === restId);
-         setUserResturantData(data)
-         setLoadingData(false)
-     }catch (e) {
-         alert(`error ${e.message}`)
-         setLoadingData(false)
-     }
-    }
+            const data = restaurants.find((rst) => rst.restraurant.id === restId);
+            setUserResturantData(data)
+            setLoadingData(false)
+        }catch (e) {
+            alert(`error ${e.message}`)
+            setLoadingData(false)
+        }
+    };
 
     useEffect(() => {
         userRstDataLoad()
@@ -58,8 +57,6 @@ const Vendor = (props) => {
 
     const RewardCard = ({ title, points, imageSource, id, rest }) => {
         const handleGetReward = async () => {
-            console.log(id)
-            console.log(rest)
             if (points <= userResturantData?.total_points ){
                 const response = await axios.post(`${BaseUrl}/api/use_points`, {
                         user: currentUser.id,
@@ -161,6 +158,17 @@ const Vendor = (props) => {
 
   return (
     <SafeAreaView style={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.scrollViewContent}
+      refreshControl={
+        <RefreshControl
+          refreshing={loadingData}
+          onRefresh={() => {
+            userRstDataLoad();
+          }}
+        />
+      }
+    >
       <SvgXml xml={logoSvgCode} width="5%" height="10%" />
 
         <View style={styles.card}>
@@ -211,8 +219,9 @@ const Vendor = (props) => {
         )}
 
       </ScrollView>
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
-export default Vendor;
+export default SpecificVendor;

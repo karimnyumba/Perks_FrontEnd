@@ -27,6 +27,8 @@ const Profile = () => {
     const navigation = useNavigation();
     const {currentUser} = usePerksContext();
     const [isAboutUsModalVisible, setAboutUsModalVisible] = useState(false);
+    const [previewImage, setPreviewImage] = useState(null);
+    const [isPreviewModalVisible, setPreviewModalVisible] = useState(false);
 
     const openAboutUsModal = () => {
       setAboutUsModalVisible(true);
@@ -36,8 +38,17 @@ const Profile = () => {
       setAboutUsModalVisible(false);
     };
 
+    const openPreviewModal = (image) => {
+      setPreviewImage(image);
+      setPreviewModalVisible(true);
+    };
+  
+    const closePreviewModal = () => {
+      setPreviewModalVisible(false);
+    };
+
     const handleLogout = () => {
-        // Display a confirmation dialog before logging out
+
         Alert.alert(
             'Logout Confirmation',
             'Are you sure you want to logout?',
@@ -72,12 +83,14 @@ const Profile = () => {
         <SvgXml xml={logoSvgCode} style={styles.logoImage} />
         <View style={styles.textContainer}>
             {currentUser.profile ? (
-                <Avatar
+                  <TouchableOpacity onPress={() => openPreviewModal(`${BaseUrl + currentUser?.profile}`)}>
+                  <Avatar
                     size={75}
                     rounded
-                    source={{uri:`${BaseUrl + currentUser?.profile}`}}
+                    source={{ uri: `${BaseUrl + currentUser?.profile}` }}
                     style={styles.profile3}
-                />
+                  />
+                </TouchableOpacity>
             ):(
                 <SvgXml xml={profilepic} style={styles.profile2} width={90} />
             )}
@@ -139,6 +152,22 @@ const Profile = () => {
         <Text style={styles.modalText}>+255763860354</Text>
       </ModalComponent>
 
+      <Modal visible={isPreviewModalVisible} transparent={true} animationType="fade">
+        <View style={styles.modalContainer}>
+          <View style={styles.previewImageContainer}>
+            <View>
+              <Text style={styles.previewImageTitle}>Profile Picture</Text>
+            </View>
+            <Image
+              source={{ uri: previewImage }}
+              style={styles.previewImage}
+            />
+            <TouchableOpacity onPress={closePreviewModal}>
+              <Text style={styles.closeButton}>Done</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };

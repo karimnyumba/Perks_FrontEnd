@@ -16,7 +16,6 @@ export default function App() {
   useFocusEffect(
       React.useCallback(() => {
         // This function is called when the screen comes into focus
-        console.log("focus");
         setScanned(true);
         if (userPointsUpdated === true){
           setUserPointsUpdated(false);
@@ -33,7 +32,6 @@ export default function App() {
   }, []);
 
   const handleBarCodeScanned = async ({ type, data }) => {
-    console.log(data)
     setScanned(true);
     if (!currentUser) {
       alert('Please log in to record transactions.');
@@ -51,7 +49,6 @@ export default function App() {
           }
       );
       let points = parseFloat(response.data?.start_amount) / 2000
-      console.log(points)
       const pointsRsp =  await  axios.post(
           `${BaseUrl}/api/user-restraurant`,
           {
@@ -61,7 +58,6 @@ export default function App() {
             coupon:response.data?.id
           }
       )
-      console.log(pointsRsp.data)
       if (pointsRsp.data) {
         navigation.navigate('SpecificVendorStack', {screen: 'SpecificVendor',
           params: {

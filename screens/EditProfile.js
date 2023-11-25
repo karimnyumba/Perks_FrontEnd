@@ -9,20 +9,21 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Avatar, Dialog} from "@rneui/themed";
 import axios from "axios";
 import {BaseUrl} from "../api/BaseUrl";
+import RNPickerSelect from 'react-native-picker-select';
+
 
 const EditProfile = ({navigation}) => {
     const [pickedImage, setpickedImage] = useState();
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
-    const [phoneNumber, setPhoneNumber] = useState('');
+    // const [phoneNumber, setPhoneNumber] = useState('');
     const [gender, setGender] = useState('');
-    const {setCurrentUser} = usePerksContext();
+    const {currentUser, setCurrentUser} = usePerksContext();
     const [email, setEmail] = useState('');
     const [isLoading, setIsLoading] = useState(false)
 
     const getPermissionAsync = async () => {
         const status = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        console.log(status);
 
         if (status.status !== "granted") {
             Alert.alert(
@@ -37,28 +38,27 @@ const EditProfile = ({navigation}) => {
 
     const takeImageHandler = async () => {
         const hasPermission = await getPermissionAsync();
-        console.log(hasPermission);
         if (!hasPermission) {
             return;
         }
-
+    
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             aspect: [3, 4],
-            quality: 1,
+            quality: 0.8,
             resize: {
-                width: 75,
-                height: 75,
-            },    
+                width: 300, 
+                height: 400, 
+            },
         });
-
+    
         // Explore the result
-        if (!result.canceled) {
+        if (!result.cancelled) {
             setpickedImage(result.assets[0].uri);
             props.onImageTaken(result.assets[0].uri);
         }
-    };
+    };    
 
     const prepareFormData = async () => {
         const formData = new FormData();
@@ -73,7 +73,7 @@ const EditProfile = ({navigation}) => {
         formData.append('email', email);
         formData.append('fname', firstName);
         formData.append('lname', lastName);
-        formData.append('phone_number', phoneNumber);
+        formData.append('phone_number', currentUser.phone_number);
         formData.append('username', firstName);
         formData.append('gender', gender);
 
@@ -98,20 +98,16 @@ const EditProfile = ({navigation}) => {
                 setCurrentUser(response.data?.user)
                 navigation.navigate('Profile');
             } else {
-                console.error('Update error:', response.data.errors);
                 Alert.alert('Update error:', 'An error occurred while update .');
             }
         } catch (err) {
             if (err.response) {
                 // Handle HTTP errors (e.g., 4xx, 5xx)
-                console.error('HTTP Error:', err.response.status, err.response.data);
                 Alert.alert('HTTP Error', 'An error occurred while making the request.');
             } else if (err.message) {
                 // Handle network or request errors
-                console.error('Network Error:', err.message);
                 Alert.alert('Network Error', 'An error occurred while making the request.');
             } else {
-                console.error('Unknown Error:', err);
                 Alert.alert('Unknown Error', 'An unknown error occurred.');
             }
         } finally {
@@ -128,7 +124,7 @@ const EditProfile = ({navigation}) => {
                 <View style={styles.imagepicker}>
                     {pickedImage ? ( <TouchableOpacity onPress={() => {
                             takeImageHandler().then(r => {
-                                console.log("------")})
+                                })
                         }} style={styles.chooseImage}><Avatar
                         size={72}
                         rounded
@@ -137,7 +133,7 @@ const EditProfile = ({navigation}) => {
                     />
                     </TouchableOpacity> ): (<TouchableOpacity onPress={() => {
                         takeImageHandler().then(r => {
-                            console.log("------")})
+                            })
                     }} style={styles.chooseImage}>
                         <SvgXml xml={profilepic} style={styles.profile} />
                     </TouchableOpacity>)}
@@ -163,20 +159,25 @@ const EditProfile = ({navigation}) => {
                         />
                     </View>
 
-                    <TextInput
+                    {/* <TextInput
                         style={styles.input}
                         placeholder="Phone Number: 255*********"
                         keyboardType="phone-pad"
                         value={phoneNumber}
                         onChangeText={(text) => setPhoneNumber(text)}
-                    />
+                    /> */}
 
-                    <TextInput
-                        style={styles.input}
-                        placeholder="Gender: M"
-                        value={gender}
-                        onChangeText={(text) => setGender(text)}
-                    />
+                    <View style={styles.input3}>
+                        <RNPickerSelect
+                             style={styles.pickerSelectStyles} 
+                            onValueChange={(value) => setGender(value)}
+                            placeholder={{ label: 'Select a gender', value: null }}
+                            items={[
+                                { label: 'Male', value: 'M' },
+                                { label: 'Female', value: 'F' },
+                            ]}
+                        />
+                    </View>
 
                     <TextInput
                         style={styles.input}

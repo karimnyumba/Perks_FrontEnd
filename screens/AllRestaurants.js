@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, TouchableOpacity, ImageBackground, ScrollView, ActivityIndicator, } from "react-native";
+import { View, Text, Image, TouchableOpacity, ImageBackground, ScrollView, RefreshControl, ActivityIndicator, } from "react-native";
 import { SearchBar } from "@rneui/themed";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
@@ -16,28 +16,27 @@ const AllRestaurants = () => {
   const [loadingData, setLoadingData] = useState(false);
   const { currentUser, userPointsUpdated } = usePerksContext();
 
-  useEffect(() => {
-    async function loadRestaurants() {
-      setLoadingData(true);
-      try {
-        const response = await axios.get(
-          `${BaseUrl}/api/user-restraurant?userId=${currentUser?.id}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        const data = response.data;
-        console.log(response);
-        setRestaurantss(data);
-        setLoadingData(false);
-      } catch (e) {
-        alert(`Error ${e.message}`);
-        setLoadingData(false);
-      }
+  const loadRestaurants = async () => {
+    setLoadingData(true);
+    try {
+      const response = await axios.get(
+        `${BaseUrl}/api/user-restraurant?userId=${currentUser?.id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = response.data;
+      setRestaurantss(data);
+      setLoadingData(false);
+    } catch (e) {
+      alert(`Error ${e.message}`);
+      setLoadingData(false);
     }
+  };
 
+  useEffect(() => {
     loadRestaurants();
   }, [userPointsUpdated, currentUser]);
 
@@ -101,6 +100,17 @@ const AllRestaurants = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+    <ScrollView
+      contentContainerStyle={styles.scrollViewContent}
+      refreshControl={
+        <RefreshControl
+          refreshing={loadingData}
+          onRefresh={() => {
+            loadRestaurants();
+          }}
+        />
+      }
+    >
       <View style={styles.topPart}>
         <ImageBackground
           style={styles.headerImage}
@@ -144,6 +154,7 @@ const AllRestaurants = () => {
         ) : (
           restaurantss?.map(renderRestaurant)
         )}
+      </ScrollView>
       </ScrollView>
     </SafeAreaView>
   );

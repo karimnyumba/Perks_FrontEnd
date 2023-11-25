@@ -207,6 +207,13 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     paddingLeft: 20,
   },
+  previewModalContainer: {
+    width: '100%',
+    height: '100%',
+  },
+  previewImage: {
+    width: '60%',
+  },
 });
 
 export default styles;
