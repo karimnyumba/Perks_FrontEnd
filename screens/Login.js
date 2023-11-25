@@ -27,7 +27,7 @@ export default function Login(){
 
     const {control, handleSubmit, formState:{errors}} = useForm({
         resolver:yupResolver(loginSchema),
-        // mode:'onChange' 
+        mode:'onChange' 
     })
 
     const handleLogin = async ({phone_number, password}) => {
@@ -113,7 +113,7 @@ export default function Login(){
                             )}
                 }
                 />
-                {errors.phone_number && <Text>{errors.phone_number.message}</Text>}
+                {errors.phone_number && <Text style={styles.errorMsg}>*{errors.phone_number.message}</Text>}
                
 
                 <View style={styles.passwordInputContainer}>
@@ -152,7 +152,7 @@ export default function Login(){
                         />
                     </TouchableOpacity>
                 </View>
-                    {errors.password && (<Text>*{errors.password.message}*</Text>)}
+                    {errors.password && <Text style={styles.errorMsg}>*{errors.password.message}</Text>}
 
                 {isLoading ? (
                     <ActivityIndicator size = "large" color = "#0000ff" />

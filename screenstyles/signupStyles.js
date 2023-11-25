@@ -99,6 +99,21 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         color: 'gray',
     },
+    errorMsg: {
+        width: '78%',
+        bottom: '1%',
+        color: 'red',
+        fontWeight: '300',
+        fontSize: 13,
+    },
+    passwordErrorMsg: {
+        width: '78%',
+        bottom: '1%',
+        color: 'red',
+        fontWeight: '300',
+        fontSize: 13,
+        marginBottom: '3%',
+    },
 });
 
 export default styles;

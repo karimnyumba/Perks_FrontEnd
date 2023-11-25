@@ -88,6 +88,13 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         color: 'gray',
     },
+    errorMsg: {
+        width: '78%',
+        bottom: '2%',
+        color: 'red',
+        fontWeight: '300',
+        fontSize: 13,
+    },
 });
 
 export default styles;

@@ -29,6 +29,7 @@ export default function SignUp() {
   const [lastName, setLastName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
   const { control, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(signupSchema),
     mode: 'onChange'
@@ -109,16 +110,18 @@ export default function SignUp() {
             name='lastName'
             render={({ field: { onChange, onBlur, value } }) => (
               <TextInput
-              placeholder="Last name"
-              onBlur={onBlur}
-              onChangeText={onChange}
-              value={value}
-              style={[styles.halfInput]}
+                placeholder="Last name"
+                onBlur={onBlur}
+                onChangeText={onChange}
+                value={value}
+                style={[styles.halfInput]}
               />
               )}
               />
         </View>
-              {errors.firstName && (<Text>*{errors.firstName.message}*</Text>)}
+              {errors.firstName && <Text style={styles.errorMsg}>*{errors.firstName.message}</Text>}
+        {errors.lastName && <Text style={styles.errorMsg}>*{errors.lastName.message}</Text>}
+
         <Controller
           control={control}
           name='phoneNumber'
@@ -133,6 +136,7 @@ export default function SignUp() {
             />
           )}
         />
+        {errors.phoneNumber && <Text style={styles.errorMsg}>*{errors.phoneNumber.message}</Text>}
         <Controller
           control={control}
           name='email'
@@ -147,6 +151,7 @@ export default function SignUp() {
             />
           )}
         />
+        {errors.email && <Text style={styles.errorMsg}>*{errors.email.message}</Text>}
 
         <View style={styles.passwordInputContainer}>
           <Controller
@@ -175,6 +180,7 @@ export default function SignUp() {
             />
           </TouchableOpacity>
         </View>
+        {errors.password && <Text style={styles.passwordErrorMsg}>*{errors.password.message}</Text>}
 
         <Text>Already have an account?</Text>
         <TouchableOpacity onPress={() => navigation.navigate('Login')}>
@@ -189,7 +195,7 @@ export default function SignUp() {
         ) : (
         <TouchableOpacity
           style={styles.customButton}
-          onPress={handleSignup}
+          onPress={handleSubmit(handleSignup)}
         >
           <Text style={styles.buttonText}>Sign Up</Text>
         </TouchableOpacity>
